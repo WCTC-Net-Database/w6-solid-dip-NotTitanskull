@@ -2,7 +2,7 @@
 
 namespace W6_assignment_template.Models
 {
-    public class Ghost : CharacterBase, IFlyable
+    public class Ghost : CharacterBase, IFlyable, ILootable
     {
         public string Treasure { get; set; }
 
@@ -16,10 +16,15 @@ namespace W6_assignment_template.Models
         {
             Console.WriteLine($"{Name} flies rapidly through the air.");
         }
-
+        
         public override void UniqueBehavior()
         {
-            throw new NotImplementedException();
+            Console.WriteLine($"{Name} passes through a wall, revealing a hidden {Treasure}!");
+            Fly(); // Ghosts use their flying ability as part of their unique behavior
+            
+            // Ghosts gain more HP than other characters
+            HP += 3;
+            Console.WriteLine($"{Name} absorbs ethereal energy. Current HP: {HP}");
         }
     }
 }

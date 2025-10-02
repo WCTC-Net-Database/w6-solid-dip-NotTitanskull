@@ -1,6 +1,8 @@
-﻿namespace W6_assignment_template.Models
+﻿using W6_assignment_template.Interfaces;
+
+namespace W6_assignment_template.Models
 {
-    public class Player : CharacterBase
+    public class Player : CharacterBase, IPlayableCharacter
     {
         public int Gold { get; set; }
 
@@ -12,7 +14,13 @@
 
         public override void UniqueBehavior()
         {
-            throw new NotImplementedException();
+            int foundGold = Gold / 10 + 1;
+            Console.WriteLine($"{Name} searches for treasure and finds {foundGold} gold coins!");
+            Gold += foundGold;
+            
+            // Players gain experience (level) when using unique behavior
+            Level += 1;
+            Console.WriteLine($"{Name} gained experience! New level: {Level}");
         }
     }
 }
