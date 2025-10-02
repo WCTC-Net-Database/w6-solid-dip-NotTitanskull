@@ -17,25 +17,24 @@ namespace W6_assignment_template.Models
             HP = hp;
         }
 
-        protected CharacterBase() { }
-
         public void Attack(ICharacter target)
         {
             Console.ForegroundColor = ConsoleColor.Blue;
             Console.WriteLine($"{Name} attacks {target.Name}");
             Console.ResetColor();
 
-            if (this is Player player && target is ILootable targetWithTreasure && !string.IsNullOrEmpty(targetWithTreasure.Treasure))
+            // Now using interfaces instead of concrete classes
+            if (this is IPlayableCharacter playableCharacter && target is ILootable targetWithTreasure && !string.IsNullOrEmpty(targetWithTreasure.Treasure))
             {
                 Console.WriteLine($"{Name} takes {targetWithTreasure.Treasure} from {target.Name}");
-                player.Gold += 10; // Assuming each treasure is worth 10 gold
+                playableCharacter.Gold += 10; // Assuming each treasure is worth 10 gold
                 targetWithTreasure.Treasure = null; // Treasure is taken
             }
-            else if (this is Player playerWithGold && target is Player targetWithGold && targetWithGold.Gold > 0)
+            else if (this is IPlayableCharacter attacker && target is IPlayableCharacter defender && defender.Gold > 0)
             {
                 Console.WriteLine($"{Name} takes gold from {target.Name}");
-                playerWithGold.Gold += targetWithGold.Gold;
-                targetWithGold.Gold = 0; // Gold is taken
+                attacker.Gold += defender.Gold;
+                defender.Gold = 0; // Gold is taken
             }
         }
 
@@ -43,8 +42,8 @@ namespace W6_assignment_template.Models
         {
             Console.WriteLine($"{Name} moves.");
         }
-
-        // Abstract method for unique behavior to be implemented by derived classes
+        
+        // Added back the abstract UniqueBehavior method
         public abstract void UniqueBehavior();
     }
 }

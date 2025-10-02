@@ -1,4 +1,5 @@
 ﻿using W6_assignment_template.Data;
+using W6_assignment_template.Interfaces;
 using W6_assignment_template.Models;
 
 namespace W6_assignment_template.Services
@@ -6,42 +7,55 @@ namespace W6_assignment_template.Services
     public class GameEngine
     {
         private readonly IContext _context;
-        private readonly Player _player;
-        private readonly Goblin _goblin;
+        private readonly IPlayableCharacter? _playableCharacter;
+        private readonly ILootable? _enemyCharacter;
 
         public GameEngine(IContext context)
         {
             _context = context;
-            _player = context.Characters.OfType<Player>().FirstOrDefault();
-            _goblin = _context.Characters.OfType<Goblin>().FirstOrDefault();
+            
+            // Find characters by interface type instead of concrete type
+            _playableCharacter = _context.Characters.OfType<IPlayableCharacter>().FirstOrDefault();
+            _enemyCharacter = _context.Characters.OfType<ILootable>().FirstOrDefault(c => c is not IPlayableCharacter);
         }
 
         public void Run()
         {
-            if (_player == null || _goblin == null)
+            if (_playableCharacter == null || _enemyCharacter == null)
             {
                 Console.WriteLine("Failed to initialize game characters.");
                 return;
             }
 
-            Console.WriteLine($"Player Gold: {_player.Gold}");
+            // Display player status using the interface
+            Console.WriteLine($"Player Gold: {_playableCharacter.Gold}");
 
-            _goblin.Move();
-            _goblin.Attack(_player);
+            // Basic turn actions using interfaces
+            _enemyCharacter.Move();
+            _enemyCharacter.Attack(_playableCharacter);
 
-            _player.Move();
-            _player.Attack(_goblin);
+            _playableCharacter.Move();
+            _playableCharacter.Attack(_enemyCharacter);
 
-            Console.WriteLine($"Player Gold: {_player.Gold}");
+            // Check special abilities
+            if (_enemyCharacter is IFlyable flyingEnemy)
+            {
+                Console.WriteLine($"{_enemyCharacter.Name} demonstrates flying ability:");
+                flyingEnemy.Fly();
+            }
 
-            // Example CRUD operations for Goblin
-            //var newGoblin = new Goblin("New Goblin", "Goblin", 1, 30, "None");
-            //_context.AddCharacter(newGoblin);
-
-            //newGoblin.Level = 2;
-            //_context.UpdateCharacter(newGoblin);
-
-            //_context.DeleteCharacter("New Goblin");
+            // Display updated player status
+            Console.WriteLine($"Player Gold: {_playableCharacter.Gold}");
+            
+            // Display treasure status
+            if (!string.IsNullOrEmpty(_enemyCharacter.Treasure))
+            {
+                Console.WriteLine($"{_enemyCharacter.Name} has {_enemyCharacter.Treasure}");
+            }
+            else
+            {
+                Console.WriteLine($"{_enemyCharacter.Name} has no treasure left");
+            }
         }
     }
 }
